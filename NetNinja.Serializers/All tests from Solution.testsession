@@ -1,0 +1,68 @@
+NetNinja.Serializers.Tests (51 tests) Success
+  NetNinja.Serializers.Tests (51 tests) Success
+    Factory (35 tests) Success
+      AreObjectsEqualTests (5 tests) Success
+        Test_DifferentObjects Success
+        Test_EqualObjects Success
+        Test_NullObjects (2 tests) Success
+          Test_NullObjects(obj1: null, obj2: "", expected: False) Success
+          Test_NullObjects(obj1: null, obj2: null, expected: True) Success
+        Test_ObjectsWithDifferentJsonSerializationOrder Success
+      CompareSerializedDataTests (6 tests) Success
+        Test_CompareSerializedData (4 tests) Success
+          Test_CompareSerializedData(data1: "{\"Version\":\"1.0\",\"Name\":\"Test\"}", format1: "json", data2: "{\"Version\":\"1.0\",\"Name\":\"Test\"}", format2: "json", expectedResult: True) Success
+          Test_CompareSerializedData(data1: "{\"Version\":\"1.0\",\"Name\":\"Test\"}", format1: "json", data2: "{\"Version\":\"2.0\",\"Name\":\"Test\"}", format2: "json", expectedResult: False) Success
+          Test_CompareSerializedData(data1: "{\"Version\":\"1.0\",\"Name\":\"Test\"}", format1: "json", data2: "<VersionObject><Version>1.0</Version><Name>Test</N"..., format2: "xml", expectedResult: True) Success
+          Test_CompareSerializedData(data1: "{\"Version\":\"1.0\",\"Name\":\"Test\"}", format1: "json", data2: "<VersionObject><Version>2.0</Version><Name>Test</N"..., format2: "xml", expectedResult: False) Success
+        Test_InvalidFormat_ShouldThrowJsonException Success
+        Test_InvalidFormatXml_ShouldThrowInvalidOperationException Success
+      ConvertBetweenFormatsTests (5 tests) Success
+        ConvertBetweenFormats_DeserializationFails_ThrowsException Success
+        ConvertBetweenFormats_SerializationFails_ThrowsException Success
+        ConvertBetweenFormats_SourceFormatNotRegistered_ThrowsNotSupportedException Success
+        ConvertBetweenFormats_SuccessfulConversion Success
+        ConvertBetweenFormats_TargetFormatNotRegistered_ThrowsNotSupportedException Success
+      GetDifferencesTests (3 tests) Success
+        Test_GetDifferences_WithSerializedData (3 tests) Success
+          Test_GetDifferences_WithSerializedData(data1: "{\"Version\":\"1.0\",\"Name\":\"Test\"}", format1: "json", data2: "{\"Version\":\"1.0\",\"Name\":\"Test\"}", format2: "json", shouldMatch: True) Success
+          Test_GetDifferences_WithSerializedData(data1: "{\"Version\":\"1.0\",\"Name\":\"Test\"}", format1: "json", data2: "{\"Version\":\"2.0\",\"Name\":\"Test\"}", format2: "json", shouldMatch: False) Success
+          Test_GetDifferences_WithSerializedData(data1: "{\"Version\":\"1.0\",\"Name\":\"Test\"}", format1: "json", data2: "<VersionObject><Version>1.0</Version><Name>Test</N"..., format2: "xml", shouldMatch: True) Success
+      GetObjectDifferencesTests (7 tests) Success
+        GetObjectDifferences_BothObjectsAreNull_ReturnsEmptyList Success
+        GetObjectDifferences_ComplexPropertyReferenceDifference_ReturnsDifference Success
+        GetObjectDifferences_ObjectsAreDifferent_ReturnsDifferences Success
+        GetObjectDifferences_ObjectsAreEqual_ReturnsEmptyList Success
+        GetObjectDifferences_ObjectsHaveDefaultProperties_ReturnsEmptyList Success
+        GetObjectDifferences_OneObjectHasNullProperty_ReturnsDifference Success
+        GetObjectDifferences_OneObjectIsNull_ReturnsDifference Success
+      GetVersionedSerializerTests (5 tests) Success
+        GetVersionedSerializer_CaseInsensitiveFormat_ReturnsCorrectSerializer Success
+        GetVersionedSerializer_FormatNotRegistered_ThrowsNotSupportedException Success
+        GetVersionedSerializer_InvalidCast_ThrowsInvalidCastException Success
+        GetVersionedSerializer_ReturnsCorrectSerializer Success
+        RegisterAndRetrieveSerializer_Success Success
+      RegisterVersionedTests (4 tests) Success
+        Register_DuplicateFormat_ThrowsInvalidOperationException Success
+        Register_FormatInsensitiveToCase_ThrowsInvalidOperationException Success
+        Register_NewFormat_Success Success
+        Register_ValidateSerializerFactory_Success Success
+    Helpers (16 tests) Success
+      BsonHelperExtensionsTests (7 tests) Success
+        HexToBytes_And_ToHexString_RoundTrip_ProducesOriginalHex Success
+        HexToBytes_EmptyHex_ReturnsEmptyBytes Success
+        HexToBytes_HexToBytes_ConvertsCorrectly Success
+        HexToBytes_OddLengthHex_ThrowsArgumentException Success
+        ToHexString_And_HexToBytes_RoundTrip_ProducesOriginalBytes Success
+        ToHexString_BytesToHex_ConvertsCorrectly Success
+        ToHexString_EmptyBytes_ReturnsEmptyString Success
+      CompressionHelperTests (5 tests) Success
+        Compress_EmptyData_ReturnsNonNullOrError Success
+        CompressAndDecompress_ReturnsOriginalData Success
+        Decompress_CorruptedCompressedData_ThrowsInvalidDataException Success
+        Decompress_EmptyCompressedData_ReturnsEmpty Success
+        Decompress_InvalidData_ThrowsInvalidDataException Success
+      EncryptionHelperTests (4 tests) Success
+        Encrypt_ShouldEncryptPlainTextSuccessfully Success
+        Encrypt_ShouldKeepEncryptionConsistent_WithSameKey Success
+        Encrypt_ShouldThrowException_WhenEncryptingNullPlainText Success
+        Encrypt_ShouldThrowException_WhenEncryptionKeyIsNotSet Success

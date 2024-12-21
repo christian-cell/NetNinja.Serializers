@@ -1,0 +1,40 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <PackageId>NetNinja.Serializers</PackageId>
+        <Version>0.1.1</Version>
+        <Authors>Christian Garcia Martin</Authors>
+        <Description>Nuget to handle object serializations and deserializations</Description>
+        <RepositoryUrl>https://github.com/christian-cell/NetNinja.Serializers</RepositoryUrl>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <IncludeBuildOutput>true</IncludeBuildOutput>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.0" />
+      <PackageReference Include="MongoDB.Bson" Version="3.1.0" />
+      <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+      <PackageReference Include="Newtonsoft.Json.Schema" Version="4.0.1" />
+      <PackageReference Include="YamlDotNet" Version="16.2.1" />
+    </ItemGroup>
+
+    <PropertyGroup>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="..\LICENSE">
+            <Pack>True</Pack>
+            <PackagePath>\</PackagePath>
+        </None>
+        <!--<None Include="..\ReadmeImages\image.png">
+            <Pack>True</Pack>
+            <PackagePath>\</PackagePath>
+        </None>-->
+        <None Include="..\README.md" Pack="true" PackagePath="\"/>
+    </ItemGroup>
+    
+</Project>
