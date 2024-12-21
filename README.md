@@ -3792,7 +3792,7 @@ namespace ExampleApplication
 To install `NetNinja.Serializers`, run the following command:
 
 ```bash
-dotnet add package NetNinja.Serializers --version 0.0.4
+dotnet add package NetNinja.Serializers --version 0.1.4
 ```
 
 Or use the NuGet package manager UI in Visual Studio.
