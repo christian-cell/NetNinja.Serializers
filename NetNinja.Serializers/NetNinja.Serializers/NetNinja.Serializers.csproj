@@ -5,7 +5,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <PackageId>NetNinja.Serializers</PackageId>
-        <Version>0.1.4</Version>
+        <Version>0.1.3</Version>
         <Authors>Christian Garcia Martin</Authors>
         <Description>Nuget to handle object serializations and deserializations</Description>
         <RepositoryUrl>https://github.com/christian-cell/NetNinja.Serializers/tree/master</RepositoryUrl>
