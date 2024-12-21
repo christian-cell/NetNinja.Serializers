@@ -92,10 +92,10 @@
 - [Yaml versioned serialize and deserialize](#yaml-versioned-serialize-and-deserialize)
 
 ## With Destinations
-- [Serialize and Deserialize with destination](#Serialize-and-deserialize-with-destination)
+- [Operations with destination](#Operations-with-destination)
 
 ## Encryption
-- [Send the data to serialize and deserialize encripted](#Send-the-data-to-serialize-and-deserialize-encripted)
+- [Send the data encripted](#Send-the-data-encripted)
 
 
 ## Installation
@@ -3609,7 +3609,7 @@ Serialized List:
   version:
 ```
 
-### Serialize and Deserialize with destination
+### Operations with destination
 ````csharp
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -3731,7 +3731,7 @@ If you disable and comment deletions lines you should see something like that
 }
 ```
 
-### Send the data to serialize and deserialize encripted
+### Send the data encripted
 You can send the data encrypted in all the methods of the class JsonSerializerWithHooks like this
 ````csharp
 using Microsoft.Extensions.Logging;
