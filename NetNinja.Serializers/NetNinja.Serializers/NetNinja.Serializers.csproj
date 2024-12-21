@@ -8,7 +8,7 @@
         <Version>0.1.1</Version>
         <Authors>Christian Garcia Martin</Authors>
         <Description>Nuget to handle object serializations and deserializations</Description>
-        <RepositoryUrl>https://github.com/christian-cell/NetNinja.Serializers</RepositoryUrl>
+        <RepositoryUrl>https://github.com/christian-cell/NetNinja.Serializers/tree/master</RepositoryUrl>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <IncludeBuildOutput>true</IncludeBuildOutput>
     </PropertyGroup>
