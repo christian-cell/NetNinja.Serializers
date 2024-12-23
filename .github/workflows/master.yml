@@ -26,17 +26,21 @@ jobs:
       # 3. Restaurar dependencias para ambos proyectos
       - name: Restore dependencies
         run: dotnet restore
+        working-directory: './NetNinja.Serializers'
         env:
           DOTNET_ROOT: /usr/share/dotnet
       
       # 4. Compilar el proyecto principal `NetNinja.Serializers`
       - name: Build NetNinja.Serializers
-        run: dotnet build ./NetNinja.Serializers/NetNinja.Serializers.csproj --configuration Debug
+        run: dotnet build --configuration Debug
+        working-directory: './NetNinja.Serializers/NetNinja.Serializers.csproj'
       
       # 5. Compilar el proyecto de pruebas `NetNinja.Serializers.Tests`
       - name: Build NetNinja.Serializers.Tests
-        run: dotnet build ./NetNinja.Serializers.Tests/NetNinja.Serializers.Tests.csproj --configuration Debug
+        run: dotnet build --configuration Debug
+        working-directory: './NetNinja.Serializers.Tests/NetNinja.Serializers.Tests.csproj'
       
       # 6. Ejecutar las pruebas
       - name: Run Tests
-        run: dotnet test ./NetNinja.Serializers.Tests/NetNinja.Serializers.Tests.csproj --no-build --configuration Debug --verbosity normal
+        run: dotnet test --no-build --configuration Debug --verbosity normal
+        working-directory: './NetNinja.Serializers.Tests/NetNinja.Serializers.Tests.csproj'
