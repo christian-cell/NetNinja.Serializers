@@ -10,7 +10,12 @@
         <Description>Nuget to handle object serializations and deserializations</Description>
         <RepositoryUrl>https://github.com/christian-cell/NetNinja.Serializers/tree/master</RepositoryUrl>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageIcon>image.png</PackageIcon>
         <IncludeBuildOutput>true</IncludeBuildOutput>
+        <Copyright>MIT License</Copyright>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
+        <IncludeSymbols>False</IncludeSymbols>
     </PropertyGroup>
 
     <ItemGroup>
@@ -35,6 +40,13 @@
             <PackagePath>\</PackagePath>
         </None>
         <None Include="..\README.md" Pack="true" PackagePath="\"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Update="image.png">
+            <Pack>True</Pack>
+            <PackagePath>\</PackagePath>
+        </None>
     </ItemGroup>
     
 </Project>
