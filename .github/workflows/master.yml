@@ -1,31 +1,40 @@
-name: Build and Test
+name: .NET CI Pipeline
 
 on:
   push:
     branches:
-      - master
+      - master  # Sólo ejecuta la pipeline en pushes a la rama `master`
   pull_request:
     branches:
-      - master
+      - master  # También ejecuta la pipeline en pull requests dirigidos a `master`
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      # 1. Checkout del código fuente
+      - name: Checkout the repository
         uses: actions/checkout@v3
-
+      
+      # 2. Configurar .NET Core
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: 8.0
-
+          dotnet-version: 8.0 # Asegúrate de que coincida con el TargetFramework de tu proyecto
+      
+      # 3. Restaurar dependencias para ambos proyectos
       - name: Restore dependencies
-        run: dotnet restore ./NetNinja.Serializers.Tests/NetNinja.Serializers.Tests.csproj
-
-      - name: Build
-        run: dotnet build ./NetNinja.Serializers.Tests/NetNinja.Serializers.Tests.csproj --no-restore --configuration Release
-
-      - name: Run tests
-        run: dotnet test ./NetNinja.Serializers.Tests/NetNinja.Serializers.Tests.csproj --no-build --verbosity normal
+        run: dotnet restore
+      
+      # 4. Compilar el proyecto principal `NetNinja.Serializers`
+      - name: Build NetNinja.Serializers
+        run: dotnet build ./NetNinja.Serializers/NetNinja.Serializers.csproj --configuration Debug
+      
+      # 5. Compilar el proyecto de pruebas `NetNinja.Serializers.Tests`
+      - name: Build NetNinja.Serializers.Tests
+        run: dotnet build ./NetNinja.Serializers.Tests/NetNinja.Serializers.Tests.csproj --configuration Debug
+      
+      # 6. Ejecutar las pruebas
+      - name: Run Tests
+        run: dotnet test ./NetNinja.Serializers.Tests/NetNinja.Serializers.Tests.csproj --no-build --configuration Debug --verbosity normal
