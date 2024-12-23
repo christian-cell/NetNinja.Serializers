@@ -26,6 +26,8 @@ jobs:
       # 3. Restaurar dependencias para ambos proyectos
       - name: Restore dependencies
         run: dotnet restore
+        env:
+          DOTNET_ROOT: /usr/share/dotnet
       
       # 4. Compilar el proyecto principal `NetNinja.Serializers`
       - name: Build NetNinja.Serializers
