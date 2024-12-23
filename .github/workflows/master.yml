@@ -33,14 +33,14 @@ jobs:
       # 4. Compilar el proyecto principal `NetNinja.Serializers`
       - name: Build NetNinja.Serializers
         run: dotnet build --configuration Debug
-        working-directory: './NetNinja.Serializers/NetNinja.Serializers.csproj'
+        working-directory: './NetNinja.Serializers'
       
       # 5. Compilar el proyecto de pruebas `NetNinja.Serializers.Tests`
       - name: Build NetNinja.Serializers.Tests
         run: dotnet build --configuration Debug
-        working-directory: './NetNinja.Serializers.Tests/NetNinja.Serializers.Tests.csproj'
+        working-directory: './NetNinja.Serializers.Tests'
       
       # 6. Ejecutar las pruebas
       - name: Run Tests
         run: dotnet test --no-build --configuration Debug --verbosity normal
-        working-directory: './NetNinja.Serializers.Tests/NetNinja.Serializers.Tests.csproj'
+        working-directory: './NetNinja.Serializers.Tests'
