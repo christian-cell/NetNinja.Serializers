@@ -20,6 +20,7 @@ namespace NetNinja.Serializers.Implementations.Regular
 
         public string Serialize(T obj)
         {
+            if(obj == null) throw new ArgumentNullException(nameof(obj));
             return JsonConvert.SerializeObject(obj, _settings);
         }
 
