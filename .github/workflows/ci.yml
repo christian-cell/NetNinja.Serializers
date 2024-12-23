@@ -13,24 +13,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Clona el repositorio
       - name: Checkout
         uses: actions/checkout@v3
 
-      # Configura .NET Core (especifica la versión que usas, por ejemplo, .NET 8.0)
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: 8.0
 
-      # Restaura las dependencias
       - name: Restore dependencies
         run: dotnet restore ./NetNinja.Serializers.Tests/NetNinja.Serializers.Tests.csproj
 
-      # Compila los proyectos
       - name: Build
         run: dotnet build ./NetNinja.Serializers.Tests/NetNinja.Serializers.Tests.csproj --no-restore --configuration Release
 
-      # Ejecuta las pruebas
       - name: Run tests
         run: dotnet test ./NetNinja.Serializers.Tests/NetNinja.Serializers.Tests.csproj --no-build --verbosity normal
