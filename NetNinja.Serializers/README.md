@@ -1,5 +1,7 @@
 ![alt text](ReadmeImages/image.png)
 
+[![.NET CI Pipeline](https://github.com/christian-cell/NetNinja.Serializers/actions/workflows/master.yml/badge.svg)](https://github.com/christian-cell/NetNinja.Serializers/actions/workflows/master.yml)
+
 # NetNinja.Serializers
 
 **NetNinja.Serializers** is a library for handling **serialization** and **deserialization** of objects with support for multiple formats, using versioned objects. This tool is designed to be extensible and flexible, simplifying data management across different formats.
