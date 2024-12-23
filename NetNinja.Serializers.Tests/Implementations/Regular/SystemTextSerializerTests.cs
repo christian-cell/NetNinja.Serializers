@@ -244,7 +244,6 @@ namespace NetNinja.Serializers.Tests.Implementations.Regular
         [Fact]
         public void SerializeToStream_should_return_correctly_data_serialized()
         {
-            // Arrange
             var serializer = new SystemTextSerializer<PersonMock>();
 
             var person = new PersonMock()
@@ -259,7 +258,6 @@ namespace NetNinja.Serializers.Tests.Implementations.Regular
                 serializer.SerializeToStream(person, memoryStream);
                 var result = Encoding.UTF8.GetString(memoryStream.ToArray());
                 
-                // Assert
                 Assert.NotNull(result);
                 Assert.NotEmpty(result);
                 Assert.IsType<string>(result);
