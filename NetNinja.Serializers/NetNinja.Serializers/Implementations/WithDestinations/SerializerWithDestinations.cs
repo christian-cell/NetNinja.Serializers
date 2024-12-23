@@ -21,7 +21,7 @@ namespace NetNinja.Serializers.Implementations.WithDestinations
             _jsonSerializer = new JsonSerializerWithHooks<T>(
                 new EncryptionHelper(options.EncryptionConfiguration),
                 jsonLogger,
-                options.JsonSettings,
+                options.NewtonSoftJsonSettings,
                 options.EnableEncryption
             );
         }
