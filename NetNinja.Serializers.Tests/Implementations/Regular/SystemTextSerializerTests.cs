@@ -554,7 +554,7 @@ namespace NetNinja.Serializers.Tests.Implementations.Regular
             // Act
             var result = systemTextSerializer.ValidateSerializedData(personStr, schema);
             
-            // _testOutputHelper.WriteLine($"ValidateSerializedData -> Result: {result}");
+            // to print _testOutputHelper.WriteLine($"ValidateSerializedData -> Result: {result}");
             
             // Assert
             Assert.False(result);
