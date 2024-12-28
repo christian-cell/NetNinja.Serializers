@@ -15,7 +15,7 @@ namespace NetNinja.Serializers.Implementations.Network
 
         public void SerializeToNetwork(T obj, string host, int port)
         {
-            var serializedData = _jsonSerializer.Serialize(obj, "Compact");
+            var serializedData = _jsonSerializer.Serialize(obj, false,"Compact");
             using (var client = new TcpClient(host, port))
             {
                 using (var networkStream = client.GetStream())

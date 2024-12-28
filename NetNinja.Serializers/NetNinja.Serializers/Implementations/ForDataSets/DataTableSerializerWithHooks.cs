@@ -10,7 +10,7 @@ namespace NetNinja.Serializers.Implementations.ForDataSets
     {
         #region Sync Methods
         
-        public override string Serialize(DataTable dataTable, string format = "Compact")
+        public override string Serialize(DataTable dataTable, bool? encrypt = false, string format = "")
         {
             if (BeforeSerialize != null)
             {
@@ -36,7 +36,7 @@ namespace NetNinja.Serializers.Implementations.ForDataSets
             return dataTable!;
         }
 
-        public override string CombineSerialized(IEnumerable<DataTable> objects)
+        public override string CombineSerialized(IEnumerable<DataTable> objects, bool? encrypt = null , string format = "")
         {
             var serializedObjects = new List<string>();
 
@@ -63,7 +63,7 @@ namespace NetNinja.Serializers.Implementations.ForDataSets
 
         #region Async Methods
 
-        public override async Task<string> SerializeAsync(DataTable dataTable, string format = "Compact")
+        public override async Task<string> SerializeAsync(DataTable dataTable,bool? encrypt = false, string format = "")
         {
             return await Task.Run(() =>
             {

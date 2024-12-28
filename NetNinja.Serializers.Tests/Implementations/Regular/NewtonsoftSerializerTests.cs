@@ -1,3 +1,4 @@
+using NetNinja.Serializers.Configurations;
 using NetNinja.Serializers.Implementations.Regular;
 using NetNinja.Serializers.Tests.Mocks;
 using Xunit.Abstractions;
@@ -18,7 +19,14 @@ namespace NetNinja.Serializers.Tests.Implementations.Regular
         [Fact]
         public void Serialize_Should_return_argumentNullException_if_obj_is_not_provided()
         {
-            NewtonsoftSerializer<PersonMockVersioned> bsonSerializerWithVersion = new NewtonsoftSerializer<PersonMockVersioned>(); 
+            NewtonsoftSerializer<PersonMockVersioned> bsonSerializerWithVersion = new NewtonsoftSerializer<PersonMockVersioned>(
+                new SerializerOptions()
+                {
+                    EncryptionConfiguration = new EncryptionConfiguration(){ EncryptionKey = "DefaultEncryptionKey123!"},
+                    EnableEncryption = true,
+                    DefaultFormat = "Compact"
+                }
+                ); 
             
             var exception = Assert.Throws<ArgumentNullException>(() => bsonSerializerWithVersion.Serialize(null));
             

@@ -1,5 +1,6 @@
 using System.Text;
 using NetNinja.Serializers.Abstractions;
+using NetNinja.Serializers.Configurations;
 using NetNinja.Serializers.Helpers;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -9,11 +10,14 @@ namespace NetNinja.Serializers.Implementations.Regular
 {
     public class NewtonsoftSerializer<T>: ISerializer<T>
     {
-        private readonly Newtonsoft.Json.JsonSerializerSettings _settings;
+        private readonly Newtonsoft.Json.JsonSerializerSettings _newtonsoftSettings;
+        
+        private readonly SerializerOptions _serializerOptions;
 
-        public NewtonsoftSerializer(JsonSerializerSettings? settings = null)
+        public NewtonsoftSerializer(SerializerOptions serializerOptions, JsonSerializerSettings? newtonsoftSettings = null)
         {
-            _settings = settings ?? new JsonSerializerSettings();
+            _serializerOptions = serializerOptions;
+            _newtonsoftSettings = newtonsoftSettings ?? new JsonSerializerSettings();
         }
 
         #region Serialization Methods
@@ -21,12 +25,12 @@ namespace NetNinja.Serializers.Implementations.Regular
         public string Serialize(T obj)
         {
             if(obj == null) throw new ArgumentNullException(nameof(obj));
-            return JsonConvert.SerializeObject(obj, _settings);
+            return JsonConvert.SerializeObject(obj, _serializerOptions.NewtonSoftJsonSettings);
         }
 
         public string SerializeMessages(List<T> messages)
         {
-            return JsonConvert.SerializeObject(messages, _settings);
+            return JsonConvert.SerializeObject(messages, _serializerOptions.NewtonSoftJsonSettings);
         }
 
         public void SerializeToStream(T obj, Stream stream)
@@ -35,7 +39,7 @@ namespace NetNinja.Serializers.Implementations.Regular
 
             using var jsonWriter = new JsonTextWriter(streamWriter);
             
-            var serializer = JsonSerializer.Create(_settings);
+            var serializer = JsonSerializer.Create(_serializerOptions.NewtonSoftJsonSettings);
             
             serializer.Serialize(jsonWriter, obj);
         }
@@ -50,14 +54,14 @@ namespace NetNinja.Serializers.Implementations.Regular
             
             using var jsonReader = new JsonTextReader(streamReader);
             
-            var serializer = JsonSerializer.Create(_settings);
+            var serializer = JsonSerializer.Create(_serializerOptions.NewtonSoftJsonSettings);
             
             return serializer.Deserialize<T>(jsonReader) ?? throw new InvalidOperationException();
         }
         
         public T Deserialize(string json)
         {
-            return JsonConvert.DeserializeObject<T>(json, _settings) ?? throw new InvalidOperationException();
+            return JsonConvert.DeserializeObject<T>(json, _serializerOptions.NewtonSoftJsonSettings) ?? throw new InvalidOperationException();
         }
 
         #endregion

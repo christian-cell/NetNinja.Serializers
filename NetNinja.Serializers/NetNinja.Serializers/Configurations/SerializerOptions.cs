@@ -7,7 +7,7 @@ namespace NetNinja.Serializers.Configurations
     {
         public EncryptionConfiguration EncryptionConfiguration { get; set; } = new EncryptionConfiguration();
         public JsonSerializerSettings NewtonSoftJsonSettings { get; set; } = new JsonSerializerSettings { Formatting = Formatting.None };
-        public JsonSerializerOptions SystemTextJsonSettings { get; set; } = new JsonSerializerOptions();
+        public JsonSerializerOptions SystemTextJsonSettings { get; set; } = new JsonSerializerOptions{AllowTrailingCommas = true};
         public bool EnableEncryption { get; set; } = false; 
         public string DefaultFormat { get; set; } = "Compact"; 
     }

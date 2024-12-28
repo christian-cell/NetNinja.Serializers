@@ -31,7 +31,7 @@ namespace NetNinja.Serializers.Implementations.WithDestinations
             try
             {
                 var actualFormat = format ?? "Compact";
-                var serializedData = _jsonSerializer.Serialize(obj, actualFormat);
+                var serializedData = _jsonSerializer.Serialize(obj,false , actualFormat);
 
                 File.WriteAllText(filePath, serializedData);
                 _logger.LogInformation($"Data serialized and saved to file: {filePath}");

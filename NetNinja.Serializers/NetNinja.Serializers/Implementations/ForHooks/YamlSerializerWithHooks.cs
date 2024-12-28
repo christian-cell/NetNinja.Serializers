@@ -4,7 +4,7 @@ namespace NetNinja.Serializers.Implementations.ForHooks
 {
     public class YamlSerializerWithHooks<T> : SerializerWithHooks<T>
     {
-        public override string Serialize(T obj, string format = "Indented")
+        public override string Serialize(T obj, bool? encrypt = false, string format = "")
         {
             if (BeforeSerialize != null)
             {

@@ -26,7 +26,7 @@ namespace NetNinja.Serializers.Implementations.ForHooks
         }
 
         #region Sync Methods
-        public override string Serialize(T obj, string format = "Compact")
+        public override string Serialize(T obj, bool? encrypt= false ,string format = "")
         {
             _logger.LogInformation("Serialization started for type: {Type}", typeof(T).Name);
 
@@ -94,7 +94,7 @@ namespace NetNinja.Serializers.Implementations.ForHooks
 
         #region Async Methods
 
-        public override async Task<string> SerializeAsync(T obj, string format = "Compact")
+        public override async Task<string> SerializeAsync(T obj, bool? encrypt = false, string format = "")
         {
             return await Task.Run(() =>
             {

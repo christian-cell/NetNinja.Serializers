@@ -7,7 +7,7 @@ namespace NetNinja.Serializers.Implementations.ForDataSets
     public class DataSetSerializerWithHooks : SerializerWithHooks<DataSet>
     {
         #region Sync Methods
-        public override string Serialize(DataSet dataSet, string format = "Compact")
+        public override string Serialize(DataSet dataSet,bool? encrypt = false, string format = "")
         {
             if (BeforeSerialize != null)
             {
@@ -33,7 +33,7 @@ namespace NetNinja.Serializers.Implementations.ForDataSets
             return dataSet;
         }
 
-        public override string CombineSerialized(IEnumerable<DataSet> objects)
+        public override string CombineSerialized(IEnumerable<DataSet> objects, bool? encrypt = null , string format = "")
         {
             var serializedObjects = new List<string>();
 
@@ -61,7 +61,7 @@ namespace NetNinja.Serializers.Implementations.ForDataSets
 
         #region Async Methods
 
-        public override async Task<string> SerializeAsync(DataSet dataSet, string format = "Compact")
+        public override async Task<string> SerializeAsync(DataSet dataSet,bool? encrypt = false, string format = "")
         {
             return await Task.Run(() =>
             {

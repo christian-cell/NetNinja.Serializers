@@ -8,14 +8,15 @@ namespace NetNinja.Serializers.Implementations.ForHooks
         public Func<T, T>? AfterDeserialize { get; set; }
         
         // Serialización con formato opcional
-        public abstract string Serialize(T obj, string format = "Compact");
+        /*public override string Serialize(T obj , bool? encrypt = false , string format = "" )*/
+        public abstract string Serialize(T obj , bool? encrypt = null , string format = ""  );
 
         // public abstract string Serialize(T obj);
         public abstract T Deserialize(string data);
 
         #region Sync Methods
 
-        public virtual string CombineSerialized(IEnumerable<T> objects)
+        public virtual string CombineSerialized(IEnumerable<T> objects, bool? encrypt = null , string format = "")
         {
             var serializedObjects = objects.Select(obj =>
             {
@@ -28,7 +29,7 @@ namespace NetNinja.Serializers.Implementations.ForHooks
                     }
                 }
                 
-                return Serialize(obj); 
+                return Serialize(obj , false); 
             });
 
             return "[" + string.Join(",", serializedObjects) + "]"; 
@@ -62,14 +63,6 @@ namespace NetNinja.Serializers.Implementations.ForHooks
 
         #region Async Methods
 
-        public virtual async Task<string> SerializeAsync(T obj)
-        {
-            return await Task.Run(() =>
-            {
-                return Serialize(obj);
-            });
-        }
-
         public virtual async Task<T> DeserializeAsync(string data)
         {
             return await Task.Run(() =>
@@ -94,9 +87,9 @@ namespace NetNinja.Serializers.Implementations.ForHooks
             });
         }
         
-        public virtual async Task<string> SerializeAsync(T obj, string format = "Compact")
+        public virtual async Task<string> SerializeAsync(T obj, bool? encrypt = null, string format = "")
         {
-            return await Task.Run(() => Serialize(obj, format));
+            return await Task.Run(() => Serialize(obj, encrypt , format));
         }
 
         #endregion

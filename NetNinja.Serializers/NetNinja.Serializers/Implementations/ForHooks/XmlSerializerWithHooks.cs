@@ -6,7 +6,7 @@ namespace NetNinja.Serializers.Implementations.ForHooks
 {
     public class XmlSerializerWithHooks<T> : SerializerWithHooks<T> where T : class
     {
-        public override string Serialize(T obj, string format = "Compact")
+        public override string Serialize(T obj,bool? encrypt = false, string format = "")
         {
             // Aplicar hook de transformación previo (si existe)
             obj = BeforeSerialize?.Invoke(obj) ?? obj;
