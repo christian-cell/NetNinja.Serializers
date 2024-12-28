@@ -1,4 +1,4 @@
-![alt text](NetNinja.Serializers/ReadmeImages/image.png)
+![alt text](ReadmeImages/image.png)
 
 [![.NET CI Pipeline](https://github.com/christian-cell/NetNinja.Serializers/actions/workflows/master.yml/badge.svg)](https://github.com/christian-cell/NetNinja.Serializers/actions/workflows/master.yml)
 
@@ -22,6 +22,9 @@
 ---
 
 ## Index
+
+## INJECT CONFIGURATION
+- [How to inject configuration](#how-to-inject-configuration)
 
 ## Factory
 - [Register Versioned Serializer](#register-versioned-serializer)
@@ -58,6 +61,7 @@
 
 ## BSON For Hooks
 - [Bson serialize](#bson-serialize)
+- [Bson serialize async](#bson-serialize-async)
 - [Bson deserialize](#bson-deserialize)
 - [Bson combine serialized](#bson-combine-serialize)
 - [Bson split serialized](#bson-split-serialized)
@@ -112,6 +116,21 @@
 - [Contributing](#contributing)
 
 ---
+
+## How to inject configuration
+````csharp
+SerializerOptions serializerOptions = new SerializerOptions()
+{
+    EncryptionConfiguration = new EncryptionConfiguration()
+    {
+        EncryptionKey = builder.Configuration["SerializersEncriptionKey"] ?? string.Empty
+    },
+    DefaultFormat = "Indented",
+    EnableEncryption = true,
+};
+
+builder.Services.AddSingleton(serializerOptions);
+````
 
 ## Register Versioned Serializer
 
@@ -1538,47 +1557,58 @@ Deserialized Data:
 ```
 
 ### Bson serialize
-Use binary format to reduce the size of operation
+Serialize : you can send by params the object , encrypt , format , if you do not send encrypt , i'll pick this
+from config if you do not have nothing in config encryption will be false , for format you can send by params "Compact"
+or "Indented" if you don't i'll pick from your config if config is not set "Compact by default"
 ````csharp
-using NetNinja.Serializers.Implementations.ForHooks;
-
-namespace NetNinja.Serializers.Test
+namespace NetNinja.Serializers.API.Controllers
 {
-    class Program
+    [ApiController]
+    [Route("[controller]")]
+    public class UserController
     {
-        static void Main(string[] args)
+
+        private readonly SerializerOptions _serializerOptions;
+
+        public UserController(SerializerOptions serializerOptions)
         {
-            // Create an example of object to serialize
-            var exampleObject = new ExampleObject
-            {
-                Name = "John Doe",
-                Age = 30,
-                Skills = new List<string> { "C#", ".NET", "MongoDB" }
-            };
-
-            // Create an instance of serializer
-            var Bsonserializer = new BsonSerializerWithHooks<ExampleObject>();
-
-            // Serialize in Compact format
-            string compactJson = Bsonserializer.Serialize(exampleObject, format: "Compact");
-            Console.WriteLine("Serialized data (Compact):");
-            Console.WriteLine(compactJson);
-
-            // Serialize in Indented format
-            string indentedJson = Bsonserializer.Serialize(exampleObject, format: "Indented");
-            Console.WriteLine("\nSerialized data (Indented):");
-            Console.WriteLine(indentedJson);
+            _serializerOptions = serializerOptions;
         }
+
+        [HttpGet]
+        public string Get()
+        {
+            var encryptionHelper = new EncryptionHelper(
+                new EncryptionConfiguration
+                {
+                    EncryptionKey = _serializerOptions.EncryptionConfiguration.EncryptionKey
+                });
+
+            var bsonSerializerWithHooks = new BsonSerializerWithHooks<User>(_serializerOptions, encryptionHelper);
+
+            User myUser = new User("fernand", "fernand@gmail.com", "234234234");
+
+            string result = bsonSerializerWithHooks.Serialize(myUser, false, "Indented");
+            
+            return result;
+        }
+       
     }
 
-    // sample class
-    public class ExampleObject
+    public class User
     {
         public string Name { get; set; }
-        public int Age { get; set; }
-        public List<string> Skills { get; set; }
+        public string Email { get; set; }
+        public string Password { get; set; }
+        
+        public User(string name, string email, string password)
+        {
+            Name = name ?? throw new ArgumentNullException(nameof(name));
+            Email = email ?? throw new ArgumentNullException(nameof(email));
+            Password = password ?? throw new ArgumentNullException(nameof(password));
+        }
     }
-}
+};
 ````
 Output
 ```
@@ -1593,175 +1623,304 @@ Serialized data (Indented):
 }
 ```
 
-### Bson deserialize
+### Bson serialize async
+SerializeAsync : you can send by params the object , encrypt , format , if you do not send encrypt , i'll pick this
+from config if you do not have nothing in config encryption will be false , for format you can send by params "Compact"
+or "Indented" if you don't i'll pick from your config if config is not set "Compact by default"
 ````csharp
+using Microsoft.AspNetCore.Mvc;
+using NetNinja.Serializers.Configurations;
+using NetNinja.Serializers.Helpers;
 using NetNinja.Serializers.Implementations.ForHooks;
 
-namespace NetNinja.Serializers.Test
+namespace NetNinja.Serializers.API.Controllers
 {
-    class Program
+    [ApiController]
+    [Route("[controller]")]
+    public class UserController
     {
-        static void Main(string[] args)
+
+        private readonly SerializerOptions _serializerOptions;
+
+        public UserController(SerializerOptions serializerOptions)
         {
-            string bsonData = @"{ ""Name"": ""John Doe"", ""Age"": 30, ""Skills"": [""C#"", "".NET"", ""MongoDB""] }";
-
-            var deserializer = new BsonSerializerWithHooks<ExampleObject>();
-
-            try
-            {
-                var deserializedObject = deserializer.Deserialize(bsonData);
-
-                Console.WriteLine("[Deserialization Result]");
-                Console.WriteLine($"Name: {deserializedObject.Name}");
-                Console.WriteLine($"Age: {deserializedObject.Age}");
-                Console.WriteLine("Skills: " + string.Join(", ", deserializedObject.Skills));
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error during deserialization: {ex.Message}");
-            }
+            _serializerOptions = serializerOptions;
         }
+
+        [HttpGet]
+        public async Task<string> Get()
+        {
+            var encryptionHelper = new EncryptionHelper(
+                new EncryptionConfiguration
+                {
+                    EncryptionKey = _serializerOptions.EncryptionConfiguration.EncryptionKey
+                });
+
+            var bsonSerializerWithHooks = new BsonSerializerWithHooks<User>(_serializerOptions, encryptionHelper);
+
+            User myUser = new User("christian", "cristohp74@gmail.com", "234234234");
+
+            string result = await bsonSerializerWithHooks.SerializeAsync(myUser,false,"Compact");
+            
+            return result;
+        }
+       
     }
 
-    public class ExampleObject
+    public class User
     {
         public string Name { get; set; }
-        public int Age { get; set; }
-        public string[] Skills { get; set; }
+        public string Email { get; set; }
+        public string Password { get; set; }
+        
+        public User(string name, string email, string password)
+        {
+            Name = name ?? throw new ArgumentNullException(nameof(name));
+            Email = email ?? throw new ArgumentNullException(nameof(email));
+            Password = password ?? throw new ArgumentNullException(nameof(password));
+        }
     }
-}
+};
+
+
+````
+
+### Bson deserialize
+````csharp
+using Microsoft.AspNetCore.Mvc;
+using NetNinja.Serializers.Configurations;
+using NetNinja.Serializers.Helpers;
+using NetNinja.Serializers.Implementations.ForHooks;
+
+namespace NetNinja.Serializers.API.Controllers
+{
+    [ApiController]
+    [Route("[controller]")]
+    public class UserController
+    {
+
+        private readonly SerializerOptions _serializerOptions;
+
+        public UserController(SerializerOptions serializerOptions)
+        {
+            _serializerOptions = serializerOptions;
+        }
+
+        [HttpGet]
+        public User Get()
+        {
+            var encryptionHelper = new EncryptionHelper(
+                new EncryptionConfiguration
+                {
+                    EncryptionKey = _serializerOptions.EncryptionConfiguration.EncryptionKey
+                });
+
+            var bsonSerializerWithHooks = new BsonSerializerWithHooks<User>(_serializerOptions, encryptionHelper); 
+            
+            var person = new User()
+            {
+                Name = "Ferando",
+                Email = "fer@gmail.com",
+                Password = "234234234"
+            };
+            
+            var personStr = bsonSerializerWithHooks.Serialize(person,false,"Compact");
+            
+            var result = bsonSerializerWithHooks.Deserialize(personStr);
+
+            return result;
+        }
+       
+    }
+
+    public class User
+    {
+        public string Name { get; set; }
+        public string Email { get; set; }
+        public string Password { get; set; }
+    }
+};
 ````
 Output
 ```
-[Deserialization Result]
-Name: John Doe
-Age: 30
-Skills: C#, .NET, MongoDB
+{
+  "name": "Ferando",
+  "email": "fer@gmail.com",
+  "password": "234234234"
+}
 
 ```
 
 ### Bson combine serialized
+CombineSerialized : combine a list of json in one ,
+@params : you can send by params the IEnumerable<your_object> , encrypt , format , if you do not send encrypt , i'll pick this
+from config if you do not have nothing in config encryption will be false , for format you can send by params "Compact"
+or "Indented" if you don't i'll pick from your config if config is not set "Compact by default"
 ````csharp
+using Microsoft.AspNetCore.Mvc;
+using NetNinja.Serializers.Configurations;
+using NetNinja.Serializers.Helpers;
 using NetNinja.Serializers.Implementations.ForHooks;
 
-namespace NetNinja.Serializers.Test
+namespace NetNinja.Serializers.API.Controllers
 {
-    class Program
+    [ApiController]
+    [Route("[controller]")]
+    public class UserController
     {
-        static void Main(string[] args)
+
+        private readonly SerializerOptions _serializerOptions;
+
+        public UserController(SerializerOptions serializerOptions)
         {
-            var exampleObjects = new List<ExampleObject>
+            _serializerOptions = serializerOptions;
+        }
+
+        [HttpGet]
+        public string Get()
+        {
+            var encryptionHelper = new EncryptionHelper(
+                new EncryptionConfiguration
+                {
+                    EncryptionKey = _serializerOptions.EncryptionConfiguration.EncryptionKey
+                });
+
+            var exampleObjects = new List<User>
             {
-                new ExampleObject { Name = "John Doe", Age = 30, Skills = new[] { "C#", ".NET", "MongoDB" } },
-                new ExampleObject { Name = "Jane Smith", Age = 25, Skills = new[] { "JavaScript", "React", "Node.js" } }
+                new User { Name = "John Doe", Email = "json@gmail.com", Password = "234234"},
+                new User { Name = "Jane Smith", Email = "jsonSmith@gmail.com", Password = "234234" }
             };
 
-            var serializer = new BsonSerializerWithHooks<ExampleObject>();
+            var serializer = new BsonSerializerWithHooks<User>(_serializerOptions, encryptionHelper);
 
             serializer.BeforeSerialize = obj =>
             {
                 obj.Name = obj.Name.ToUpper();
                 return obj;
             };
+            
+            var result = serializer.CombineSerialized(exampleObjects,true,"Compact");
 
-            try
-            {
-                var combinedJson = serializer.CombineSerialized(exampleObjects);
-
-                Console.WriteLine("[Combined JSON Result]");
-                Console.WriteLine(combinedJson);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error during serialization: {ex.Message}");
-            }
+            return result;
         }
+       
     }
 
-    public class ExampleObject
+    public class User
     {
         public string Name { get; set; }
-        public int Age { get; set; }
-        public string[] Skills { get; set; }
+        public string Email { get; set; }
+        public string Password { get; set; }
     }
-}
+};
+
+
 ````
 Output
+
 ```
-[Combined JSON Result]
-[{ "Name" : "JOHN DOE", "Age" : 30, "Skills" : ["C#", ".NET", "MongoDB"] }, { "Name" : "JANE SMITH", "Age" : 25, "Skills" : ["JavaScript", "React", "Node.js"] }]
+//encrypted
+ENoO5Fbd8BgI8C9zQ1TEfeiPX68X2dvcAm28emOEK5NIMY6MPDehogg6C2xTz210MNuGR57jnjk2CfxxEAZiGOg9O5oxAi60FWrjnXMS57m30SxOLT+xlThSOVVKEIozBu7gRbRyf6oZIDquuxLLuDfzoXu+UOkenDOLOaMkG61t73UMWU8CIEpdb/DMYFHLFz5H83WGTM2/xhoJPeM3+A==
+
+//Indented
+[{
+    "Name" : "JOHN DOE",
+    "Email" : "json@gmail.com",
+    "Password" : "234234"
+  }, {
+    "Name" : "JANE SMITH",
+    "Email" : "jsonSmith@gmail.com",
+    "Password" : "234234"
+}]
+
+//Compact
+[{ "Name" : "JOHN DOE", "Email" : "json@gmail.com", "Password" : "234234" }, { "Name" : "JANE SMITH", "Email" : "jsonSmith@gmail.com", "Password" : "234234" }]
+
 ```
 
 ### Bson split serialized
 ````csharp
+using Microsoft.AspNetCore.Mvc;
+using NetNinja.Serializers.Configurations;
+using NetNinja.Serializers.Helpers;
 using NetNinja.Serializers.Implementations.ForHooks;
 
-namespace NetNinja.Serializers.Test
+namespace NetNinja.Serializers.API.Controllers
 {
-    class Program
+    [ApiController]
+    [Route("[controller]")]
+    public class UserController
     {
-        static void Main(string[] args)
+
+        private readonly SerializerOptions _serializerOptions;
+
+        public UserController(SerializerOptions serializerOptions)
         {
+            _serializerOptions = serializerOptions;
+        }
+
+        [HttpGet]
+        public List<User> Get()
+        {
+            var encryptionHelper = new EncryptionHelper(
+                new EncryptionConfiguration
+                {
+                    EncryptionKey = _serializerOptions.EncryptionConfiguration.EncryptionKey
+                });
+
             string combinedSerialized = @"
             [
                 {
                     ""Name"": ""JOHN DOE"",
-                    ""Age"": 30,
-                    ""Skills"": [""C#"", "".NET"", ""MongoDB""]
+                    ""Email"": ""santi@gmail.com"",
+                    ""Password"": ""235345""
                 },
                 {
                     ""Name"": ""JANE SMITH"",
-                    ""Age"": 25,
-                    ""Skills"": [""JavaScript"", ""React"", ""Node.js""]
+                    ""Email"": ""jane@gmail.com"",
+                    ""Password"": ""235345""
                 }
             ]";
-
-            var deserializer = new BsonSerializerWithHooks<ExampleObject>();
-
-            deserializer.AfterDeserialize = obj =>
+            
+            var bsonSerializerWithHooks = new BsonSerializerWithHooks<User>(_serializerOptions, encryptionHelper); 
+            
+            bsonSerializerWithHooks.AfterDeserialize = obj =>
             {
                 obj.Name = obj.Name.ToLower();
                 return obj;
             };
+            
+            var result = bsonSerializerWithHooks.SplitSerialized(combinedSerialized);
 
-            try
-            {
-                var objects = deserializer.SplitSerialized(combinedSerialized);
-
-                Console.WriteLine("[Split Deserialization Results]");
-                foreach (var obj in objects)
-                {
-                    Console.WriteLine($"Name: {obj.Name}");
-                    Console.WriteLine($"Age: {obj.Age}");
-                    Console.WriteLine($"Skills: {string.Join(", ", obj.Skills)}");
-                    Console.WriteLine();
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error during split deserialization: {ex.Message}");
-            }
+            return result.ToList();
         }
+       
     }
 
-    public class ExampleObject
+    public class User
     {
         public string Name { get; set; }
-        public int Age { get; set; }
-        public string[] Skills { get; set; }
+        public string Email { get; set; }
+        public string Password { get; set; }
     }
-}
+};
+
+
 ````
 Ouput
 ```
-[Split Deserialization Results]
-Name: john doe
-Age: 30
-Skills: C#, .NET, MongoDB
-
-Name: jane smith
-Age: 25
-Skills: JavaScript, React, Node.js
+[
+  {
+    "name": "john doe",
+    "email": "santi@gmail.com",
+    "password": "235345"
+  },
+  {
+    "name": "jane smith",
+    "email": "jane@gmail.com",
+    "password": "235345"
+  }
+]
 ```
 
 ### Bson async serialize
@@ -2497,6 +2656,19 @@ class Program
 {
     static void Main()
     {
+        /*
+        * you can also inject configuration in this class like this
+        */
+        
+         new NewtonsoftSerializer<PersonMockVersioned>(
+                new SerializerOptions()
+                {
+                    EncryptionConfiguration = new EncryptionConfiguration(){ EncryptionKey = "DefaultEncryptionKey123!"},
+                    EnableEncryption = true,
+                    DefaultFormat = "Compact"
+                }
+         );
+        
         var serializer = new NewtonsoftSerializer<ExampleObject>();
 
         var exampleObject = new ExampleObject
