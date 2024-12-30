@@ -21,7 +21,7 @@ namespace NetNinja.Serializers.Implementations.ForDataSets
             return JsonConvert.SerializeObject(dataSet, formatting);
         }
 
-        public override DataSet Deserialize(string data)
+        public override DataSet Deserialize(string data, bool encrypt = false)
         {
             var dataSet = JsonConvert.DeserializeObject<DataSet>(data);
 

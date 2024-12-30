@@ -31,7 +31,7 @@ namespace NetNinja.Serializers.Implementations.ForHooks
             }
         }
 
-        public override T Deserialize(string data)
+        public override T Deserialize(string data, bool encrypt = false)
         {
             using (var stringReader = new StringReader(data))
             {

@@ -27,4 +27,8 @@
       <ProjectReference Include="..\NetNinja.Serializers\NetNinja.Serializers\NetNinja.Serializers.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Files\" />
+    </ItemGroup>
+
 </Project>

@@ -24,7 +24,7 @@ namespace NetNinja.Serializers.Implementations.ForDataSets
             return JsonConvert.SerializeObject(dataTable, formatting);
         }
 
-        public override DataTable Deserialize(string data)
+        public override DataTable Deserialize(string data, bool encrypt = false)
         {
             var dataTable = JsonConvert.DeserializeObject<DataTable>(data);
 

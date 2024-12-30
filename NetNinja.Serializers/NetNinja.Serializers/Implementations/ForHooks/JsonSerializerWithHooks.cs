@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
+using NetNinja.Serializers.Configurations;
 using NetNinja.Serializers.Helpers;
 using Newtonsoft.Json;
 
@@ -7,32 +8,39 @@ namespace NetNinja.Serializers.Implementations.ForHooks
 {
     public class JsonSerializerWithHooks<T> : SerializerWithHooks<T>
     {
+        private SerializerOptions _serializerOptions;
         private readonly JsonSerializerSettings? _settings;
         private readonly ILogger<JsonSerializerWithHooks<T>> _logger; 
         private readonly EncryptionHelper _encryptionHelper;
-        private readonly bool _enableEncryption;
 
         public JsonSerializerWithHooks(
+            
             EncryptionHelper encryptionHelper,
-            ILogger<JsonSerializerWithHooks<T>> logger,
-            JsonSerializerSettings? settings = null,
-            bool enableEncryption = false
+            ILogger<JsonSerializerWithHooks<T>> logger, 
+            SerializerOptions serializerOptions, 
+            JsonSerializerSettings? settings = null
             ) : base()
         {
             _encryptionHelper = encryptionHelper;
             _logger = logger;
+            _serializerOptions = serializerOptions;
             _settings = settings;
-            _enableEncryption = enableEncryption;
         }
 
         #region Sync Methods
-        public override string Serialize(T obj, bool? encrypt= false ,string format = "")
+        public override string Serialize(T obj, bool? encrypt = null ,string format = "")// Tested
         {
             _logger.LogInformation("Serialization started for type: {Type}", typeof(T).Name);
+            
+            if (obj == null) throw new ArgumentNullException(nameof(obj), "The object to serialize cannot be null.");
+            
+            var myFormat = !string.IsNullOrEmpty(format) ? format : _serializerOptions.DefaultFormat ?? "Compact";
+    
+            var useEncryption = encrypt ?? _serializerOptions.EnableEncryption;
 
             var stopwatch = Stopwatch.StartNew(); 
             
-            var formatting = format.Equals("Indented", StringComparison.OrdinalIgnoreCase)
+            var formatting = myFormat.Equals("Indented", StringComparison.OrdinalIgnoreCase)
                 ? Formatting.Indented
                 : Formatting.None;
 
@@ -48,7 +56,7 @@ namespace NetNinja.Serializers.Implementations.ForHooks
 
             var serializedData = JsonConvert.SerializeObject(obj, formatting);
 
-            if (_enableEncryption)
+            if (useEncryption)
             {
                 serializedData = _encryptionHelper.Encrypt(serializedData);
             }
@@ -62,13 +70,16 @@ namespace NetNinja.Serializers.Implementations.ForHooks
             return serializedData;
         }
 
-        public override T Deserialize(string data)
+        public override T Deserialize(string data, bool encrypt = false)
         {
+            if (string.IsNullOrEmpty(data)) throw new ArgumentNullException(nameof(data), "The data to deserialize cannot be null or empty.");
+            
             _logger.LogInformation("Deserialization started for type: {Type}", typeof(T).Name);
 
             var stopwatch = Stopwatch.StartNew();
-
-            var decryptedData = _enableEncryption ? _encryptionHelper.Decrypt(data) : data;
+            
+            
+            var decryptedData = encrypt ? _encryptionHelper.Decrypt(data) : data;
 
             var obj = JsonConvert.DeserializeObject<T>(decryptedData);
 

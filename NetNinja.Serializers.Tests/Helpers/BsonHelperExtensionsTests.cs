@@ -67,15 +67,6 @@ namespace NetNinja.Serializers.Tests.Helpers
             Assert.Empty(bytes);
         }
 
-        /*[Fact]
-        public void HexToBytes_InvalidHex_ThrowsFormatException()
-        {
-            var invalidHex = "invalid";
-
-            var exception = Assert.Throws<FormatException>(() => invalidHex.HexToBytes());
-            Assert.Contains("contains invalid characters", exception.Message);
-        }*/
-
         [Fact]
         public void HexToBytes_OddLengthHex_ThrowsArgumentException()
         {

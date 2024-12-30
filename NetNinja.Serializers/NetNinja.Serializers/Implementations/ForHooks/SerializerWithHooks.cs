@@ -12,7 +12,7 @@ namespace NetNinja.Serializers.Implementations.ForHooks
         public abstract string Serialize(T obj , bool? encrypt = null , string format = ""  );
 
         // public abstract string Serialize(T obj);
-        public abstract T Deserialize(string data);
+        public abstract T Deserialize(string data, bool encrypt = false);
 
         #region Sync Methods
 

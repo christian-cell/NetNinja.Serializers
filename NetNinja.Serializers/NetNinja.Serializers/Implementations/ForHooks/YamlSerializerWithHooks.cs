@@ -28,7 +28,7 @@ namespace NetNinja.Serializers.Implementations.ForHooks
             return serializer.Serialize(obj);
         }
 
-        public override T Deserialize(string data)
+        public override T Deserialize(string data, bool encrypt = false)
         {
             var deserializer = new DeserializerBuilder().Build();
             

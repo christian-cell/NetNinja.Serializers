@@ -77,4 +77,3 @@ namespace NetNinja.Serializers.Tests.Factory
         }
     }
 }
-

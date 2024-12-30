@@ -48,7 +48,7 @@ namespace NetNinja.Serializers.Implementations.ForHooks
             return serializedData;
         }
 
-        public override T Deserialize(string data)
+        public override T Deserialize(string data, bool encrypt = false)
         {
             if (string.IsNullOrEmpty(data)) throw new ArgumentNullException(nameof(data), "The data to deserialize cannot be null or empty.");
             

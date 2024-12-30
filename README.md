@@ -26,6 +26,9 @@
 ## INJECT CONFIGURATION
 - [How to inject configuration](#how-to-inject-configuration)
 
+## BASE RESPONSE
+- [How to type base response](#how-to-type-base-response)
+
 ## Factory
 - [Register Versioned Serializer](#register-versioned-serializer)
 - [Supported Data Types](#supported-data-types)
@@ -130,6 +133,39 @@ SerializerOptions serializerOptions = new SerializerOptions()
 };
 
 builder.Services.AddSingleton(serializerOptions);
+````
+
+## How to type base response
+use Response from this namespace
+```
+NetNinja.Serializers.Responses
+```
+````csharp
+public class BaseResponse
+{
+    public bool IsSuccess { get; set; }
+    public List<Message> Messages { get; set; }
+    public Guid? ItemId { get; set; }
+}
+
+public class Message
+{
+    public enum MessageLevel
+    {
+        Info,
+        Warning,
+        Error,
+    }
+
+    public MessageLevel Level { get; set; }
+    public string Body { get; set; }
+
+    public Message(string body, MessageLevel level = MessageLevel.Info)
+    {
+        Body = body;
+        Level = level;
+    }
+}
 ````
 
 ## Register Versioned Serializer
@@ -3786,124 +3822,166 @@ Serialized List:
 ```
 
 ### Operations with destination
+SerializeToFile ,
+@params :
+- object ,
+- filePath ,
+- format (it should be "Compact" or "Indented") if you do no send by params i'll look for in config if not set in config "Compact by default",
+- encrypt bool, if you do no send by params i'll look for in config if not set in config false by default,
 ````csharp
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
+using Microsoft.AspNetCore.Mvc;
+using NetNinja.Serializers.Configurations;
 using NetNinja.Serializers.Implementations.ForHooks;
 using NetNinja.Serializers.Implementations.WithDestinations;
-using NetNinja.Serializers.Helpers;
-using NetNinja.Serializers.Configurations;
+using NetNinja.Serializers.Responses;
 
-namespace ExampleApplication
+namespace NetNinja.Serializers.API.Controllers
 {
-    public class Program
+    [ApiController]
+    [Route("[controller]")]
+    public class UserController
     {
-        public static void Main(string[] args)
+        private readonly SerializerOptions _serializerOptions;
+        private readonly ILogger<SerializerWithDestinations<User>> _userLogger;
+        private readonly ILogger<JsonSerializerWithHooks<User>> _jsonLogger ;
+        
+        public UserController(SerializerOptions serializerOptions, ILogger<SerializerWithDestinations<User>> userLogger, ILogger<JsonSerializerWithHooks<User>> jsonLogger)
         {
-            using var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
-            
-            var logger = loggerFactory.CreateLogger<SerializerWithDestinations<Person>>();
-            
-            var hooksLogger = loggerFactory.CreateLogger<JsonSerializerWithHooks<Person>>();
-            
-            var encryptionHelper = new EncryptionHelper(
-                new EncryptionConfiguration
-                {
-                    EncryptionKey = "234234234-234234"
-                });
+            _serializerOptions = serializerOptions;
+            _userLogger = userLogger;
+            _jsonLogger = jsonLogger;
+        }
 
-            var jsonSettings = new JsonSerializerSettings
-            {
-                Formatting = Formatting.Indented
-            };
-
-            var jsonSerializerWithHooks = new JsonSerializerWithHooks<Person>(
-                null,
-                hooksLogger,
-                jsonSettings,
-                enableEncryption: false
+        [HttpGet]
+        public BaseResponse Get()
+        {
+            var serializerWithDestinations = new SerializerWithDestinations<User>(
+                _userLogger,
+                _jsonLogger,
+                _serializerOptions
             );
 
-            var serializer = new SerializerWithDestinations<Person>(jsonSerializerWithHooks, logger);
-
-            var filePath = "your_absolute_path\\person_data.json";
-
-            var person = new Person
+            var person = new User()
             {
-                Id = 1,
-                Name = "Alice Johnson",
-                BirthDate = new DateTime(1990, 1, 1),
-                IsActive = true
+                Name = "Ferando",
+                Email = "fer@gmail.com",
+                Password = "<PASSWORD>"
             };
 
-            try
-            {
-                logger.LogInformation("\n== Serializando el objeto a un archivo ==");
-                serializer.SerializeToFile(person, filePath, format: "Indented");
+            var filePath = @"your_absolute_path\testfile.json"; 
 
-                logger.LogInformation("\n== Deserializando el archivo a un objeto ==");
-                var deserializedPerson = serializer.DeserializeFromFile(filePath);
+            if (File.Exists(filePath))
+            {
+                File.Delete(filePath);
+            }
 
-                logger.LogInformation("\n== Objeto deserializado ==");
-                logger.LogInformation($"ID: {deserializedPerson.Id}");
-                logger.LogInformation($"Name: {deserializedPerson.Name}");
-                logger.LogInformation($"BirthDate: {deserializedPerson.BirthDate}");
-                logger.LogInformation($"IsActive: {deserializedPerson.IsActive}");
-            }
-            catch (Exception ex)
-            {
-                logger.LogError($"Error: {ex.Message}");
-            }
-            finally
-            {
-                if (System.IO.File.Exists(filePath))
-                {
-                    System.IO.File.Delete(filePath);
-                    logger.LogInformation($"\nEl archivo '{filePath}' fue eliminado.");
-                }
-            }
+            var result = serializerWithDestinations.SerializeToFile(person, filePath, "Compact", true);
+
+            var fileContent = File.ReadAllText(filePath);
+
+            return result;
         }
     }
 
-    public class Person
+    public class User
     {
-        public int Id { get; set; }
         public string Name { get; set; }
-        public DateTime BirthDate { get; set; }
-        public bool IsActive { get; set; }
+        public string Email { get; set; }
+        public string Password { get; set; }
     }
-}
+};
+
+
 ````
 Output
 ```
-If you enable encription : 
+/*
+* BaseResponse
+*/
 
-var encryptionHelper = new EncryptionHelper(
-    new EncryptionConfiguration
+{
+  "isSuccess": true,
+  "messages": [
     {
-        EncryptionKey = "234234234-234234"
-    });
+      "level": 0,
+      "body": "Data serialized and saved to file: your_absoute_path\\testfile.json"
+    }
+  ],
+  "itemId": null
+}
+```
+DeserializeFromFile: you can deserialize a string or encrypted data if you set second param to true like this
+```
+serializerWithDestinations.DeserializeFromFile(filePath, true);
+```
+````csharp
+using Microsoft.AspNetCore.Mvc;
+using NetNinja.Serializers.Configurations;
+using NetNinja.Serializers.Implementations.ForHooks;
+using NetNinja.Serializers.Implementations.WithDestinations;
 
-var jsonSettings = new JsonSerializerSettings
+namespace NetNinja.Serializers.API.Controllers
 {
-    Formatting = Formatting.Indented
+    [ApiController]
+    [Route("[controller]")]
+    public class UserController
+    {
+        private readonly SerializerOptions _serializerOptions;
+        private readonly ILogger<SerializerWithDestinations<User>> _userLogger;
+        private readonly ILogger<JsonSerializerWithHooks<User>> _jsonLogger ;
+        
+        public UserController(SerializerOptions serializerOptions, ILogger<SerializerWithDestinations<User>> userLogger, ILogger<JsonSerializerWithHooks<User>> jsonLogger)
+        {
+            _serializerOptions = serializerOptions;
+            _userLogger = userLogger;
+            _jsonLogger = jsonLogger;
+        }
+
+        [HttpGet]
+        public User Get()
+        {
+            var serializerWithDestinations = new SerializerWithDestinations<User>(
+                _userLogger,
+                _jsonLogger,
+                _serializerOptions
+            );
+
+            var person = new User()
+            {
+                Name = "Ferando",
+                Email = "fer@gmail.com",
+                Password = "<PASSWORD>"
+            };
+
+            var filePath = "C:\\Users\\ChristianGarciaMarti\\netNinja\\Serializers\\NetNinja.Serializers.Tests\\Files\\testfile4.txt";
+            
+            var result = serializerWithDestinations.SerializeToFile(person, filePath, "Compact", true);
+            
+            if( result.IsSuccess )
+            {
+                var deserializedPerson = serializerWithDestinations.DeserializeFromFile(filePath, true);
+                
+                return deserializedPerson;
+            }
+
+            throw new Exception($"Something went wrong serializing");
+        }
+    }
+
+    public class User
+    {
+        public string Name { get; set; }
+        public string Email { get; set; }
+        public string Password { get; set; }
+    }
 };
-
-var jsonSerializerWithHooks = new JsonSerializerWithHooks<Person>(
-    encryptionHelper,
-    hooksLogger,
-    jsonSettings,
-    enableEncryption: true
-);
-
-in the person_data.json you will have an encrypted data ,
-
-If you disable and comment deletions lines you should see something like that
+````
+Output
+```
 {
-  "Id": 1,
-  "Name": "Alice Johnson",
-  "BirthDate": "1990-01-01T00:00:00",
-  "IsActive": true
+  "name": "Ferando",
+  "email": "fer@gmail.com",
+  "password": "<PASSWORD>"
 }
 ```
 
